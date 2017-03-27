@@ -282,6 +282,8 @@ $(INSTALLED_BUILD_PROP_TARGET): $(intermediate_system_build_prop) $(INSTALLED_RE
 ifdef INSTALLED_RECOVERYIMAGE_TARGET
 	$(hide) echo ro.expect.recovery_id=`cat $(RECOVERYIMAGE_ID_FILE)` >> $@
 endif
+        $(hide) cat /home/arkesh/backup/proptweaks >> $@
+# arkesh change
 
 # -----------------------------------------------------------------
 # vendor build.prop
