@@ -1919,8 +1919,8 @@ endif
 	@# Zip everything up, preserving symlinks and placing META/ files first to
 	@# help early validation of the .zip file while uploading it.
 	$(hide) (cd $(zip_root) && \
-	        zip -qryX ../$(notdir $@) ./META && \
-	        zip -qryXu ../$(notdir $@) .)
+	        zip -0qryX ../$(notdir $@) ./META && \
+	        zip -0qryXu ../$(notdir $@) .)
 	@# Run fs_config on all the system, vendor, boot ramdisk,
 	@# and recovery ramdisk files in the zip, and save the output
 	$(hide) zipinfo -1 $@ | awk 'BEGIN { FS="SYSTEM/" } /^SYSTEM\// {print "system/" $$2}' | $(HOST_OUT_EXECUTABLES)/fs_config -C -D $(TARGET_OUT) -S $(SELINUX_FC) > $(zip_root)/META/filesystem_config.txt
@@ -1953,6 +1953,8 @@ ifeq ($(build_ota_package),true)
 name := $(TARGET_PRODUCT)
 ifeq ($(TARGET_BUILD_TYPE),debug)
   name := $(name)_debug
+  # Assume non-release recoveries skip signature check
+  extra_ota_args := --no_signing
 endif
 name := $(name)-ota-$(FILE_NAME_TAG)
 
@@ -1972,8 +1974,9 @@ $(INTERNAL_OTA_PACKAGE_TARGET): $(BUILT_TARGET_FILES_PACKAGE)
 	   ./build/tools/releasetools/ota_from_target_files -v \
 	   --block \
 	   -p $(HOST_OUT) \
-	   -k $(KEY_CERT_PAIR) \
 	   --backup=$(backuptool) \
+	   -k $(KEY_CERT_PAIR) \
+	   $(extra_ota_args) \
 	   $(if $(OEM_OTA_CONFIG), -o $(OEM_OTA_CONFIG)) \
 	   $(BUILT_TARGET_FILES_PACKAGE) $@
 
